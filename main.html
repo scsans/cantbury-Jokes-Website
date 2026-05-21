@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ch">
+<head>
+    <meta charset="UTF-8">
+    <title>KTBL终端</title>
+    <style>
+        * {
+            user-select: none;
+        }
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+            margin: 0;
+            background-color: rgb(20, 20, 20);
+            overflow: hidden;
+            font-weight: 360;
+        }
+        h1 {
+            position: absolute;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 50px;
+            z-index: 2;
+        }
+        #title-1{
+            left: 0;
+            top: -55px;
+            animation: fade-in-t1 1s ease;
+            animation-fill-mode: forwards;
+            font-weight: 200;
+            z-index: 3;
+        }
+        @keyframes fade-in-t1{
+            0%{transform: translateY(-100%);}
+            100%{transform: translateY(10%);}
+        }
+        #title-2{
+            left: -1px;
+            top:3px;
+            transform: translateX(-101%);
+            animation: fade-in-t2 0.9s ease;
+            animation-delay: 0.2s;
+            animation-fill-mode: forwards;
+            font-weight: 200;
+            z-index: 3;
+        }
+        @keyframes fade-in-t2{
+            0%{transform: translateX(-100%);}
+            100%{transform: translateX(0%);}
+        }
+        .background-top {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(
+                0deg,
+                rgb(231, 92, 82) 20%,
+                rgb(38, 38, 38) 80%
+            );
+            background-size: 20px 91.1px;
+            padding: 20px;
+            box-shadow: inset 0 0 1px px rgb(0, 0, 0);
+            mask-image: repeating-radial-gradient(
+                circle at 5px 5px,
+                #000000 0px,
+                #000000 2px,
+                transparent 3px,
+                transparent 20px
+            );
+            mask-size: 13px 13px;
+            mask-position: 3px 6px;
+            z-index: 1;
+            animation: flowGradient 5s linear infinite;
+        }
+        .danmaku-text {
+            position: absolute;
+            top: var(--height);
+            left: 100%;
+            font-size: 18px;
+            line-height: 0;
+            animation: top_text_move 10s linear infinite;
+            animation-delay: var(--delay);
+            white-space: nowrap;
+            z-index: 2;
+            color: rgb(235, 43, 0);
+            box-shadow: #48100050 0 0 10px 5px;
+        }
+        .move-i{
+            transform: translateX(-200%);
+            position: absolute;
+            box-shadow: #ffcfb8 0 0 10px 12px;
+            animation: top_text_move 10s linear infinite;
+        }
+        #danmaku-toolbar {
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(66, 66, 66, 0.8);
+            padding: 10px;
+            box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.1);
+        }
+        #danmaku-toolbar input {
+            width: 80%;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        #title-card {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: #131414cf;
+            box-shadow: inset 0 0 20px 10px rgba(0, 0, 0, 0.34);
+        }
+        @keyframes top_text_move {
+            from {transform: translateX(100%);left: 100%;}
+            to {transform: translateX(-100%);left: -100%;}
+        }
+        @keyframes flowGradient {
+            0% {background-position: 0% 0%;}
+            100% {background-position: 0% 200%;}
+        }
+        .notice-base{
+            position: relative;
+            height: 92px;
+            background-image: linear-gradient(
+                rgba(0, 50, 95, 0.413) 10%,
+                rgba(12, 34, 203, 0) 100%
+            );
+            border-width: 1px 1px 1px 8px;
+            border-style: solid;
+            border-color: #0095ff;
+            overflow: hidden;
+            padding: 16px 0px 0 4px;
+            transition: all ease 0.3s;
+            text-overflow: ellipsis;
+            overflow-y: auto;
+            box-shadow:  0 0 2px 2px rgba(130, 130, 130, 0.352);
+        }
+        .notice-base:hover{
+            transform: scale(1.05);
+            opacity: 1 !important;
+            box-shadow:  0 0 20px 1px rgb(53, 53, 53);
+        }
+        .notice-base::after{
+            content: "公告#";
+            position: absolute;
+            font-size: 80px;
+            top: -30px;
+            color: #ffffff27;
+            font-weight: 400;
+            left: -20px;
+        }
+        .notice-base::before{
+            content: "ANNOUNCEMENT";
+            position: absolute;
+            bottom: -14px;
+            right: 0px;
+            font-weight:100 ;
+            opacity: 0.1;
+            font-size: 40px;
+        }
+        .notice-base.warning-notice{
+            border-color: rgb(255, 111, 0);
+            background-image: linear-gradient(
+                rgba(193, 74, 0, 0.363) 10%,
+                rgba(66, 42, 0, 0.21) 100%
+            );
+        }
+        .notice-base.warning-notice::after{
+            content: "警告?";
+        }
+        .notice-base.warning-notice::before{
+            content: "WARNING";
+        }
+        .notice-base.act-notice{
+            border-color: rgb(240, 240, 240);
+            background-image: linear-gradient(
+                rgba(128, 128, 128, 0.338) 10%,
+                rgba(126, 126, 126, 0) 100%
+            );
+        }
+        .notice-base.act-notice::after{
+            content: "活动@";
+        }
+        .notice-base.act-notice::before{
+            content: "ACTIVITY";
+        }
+        #notice-broad:hover .notice-base{
+            opacity: 0.3;
+        }
+        ::-webkit-scrollbar{
+            background-color: #ffffff26;
+            width: 10px;
+        }
+        ::-webkit-scrollbar-button{
+            background-color: #0000002a;
+        }
+        ::-webkit-scrollbar-track-piece{
+            background-color: #00000051;
+        }
+        .top_text_notice{
+            position: absolute;
+            font-size: 17px;
+            font-weight: 100 !important;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            opacity: 0.9;
+            color: white;
+            top: -4px;
+            left: 0;
+        }
+        #agents-broad{
+            display: flex;
+            height: 400px;
+            background-color: #4848482c;
+            width: 100%;
+            padding: 7px;
+            overflow-x: scroll;
+            gap: 10px;
+        }
+        .agent{
+            position: relative;
+            flex-shrink: 0;
+            flex: left;
+            background-image: linear-gradient(
+                rgba(255, 255, 255, 0.043) 0%,
+                rgba(107, 107, 107, 0.562) 100%
+            );
+            width: 20%;
+            height: 100%;
+            box-shadow:0 0 5px 1px rgba(32, 32, 32, 0.97),inset 0 0 9px 1px rgba(0, 0, 0, 0.521);
+            transition: all ease-in-out 0.3s;
+            opacity: 1;
+            border-color: rgba(255, 255, 255, 0.653);
+            border-width: 1.6px;
+            border-style: solid;
+            color: #f0f0f049;
+            font-weight: 100;
+        }
+        .agent:hover{
+            transform: translateY(-7.8px);
+        }
+        .agent > span{
+            position: absolute;
+            font-size: 70PX;
+            right: 0;
+            bottom: 8px;
+        }
+        .agent > #bar{
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            background-image: linear-gradient(
+                90deg,
+                rgb(255, 255, 255) 100%,
+                rgba(255, 255, 255, 0.228) 0%
+            );
+            bottom: 0;
+            opacity: 0.7;
+            color: #000000;
+            font-size: 30px;
+            font-weight: 300;
+        }
+        .agent > #details{
+            position: absolute;
+            background-color: #aeaeae53;
+            height: 30%;
+            width: 100%;
+            bottom: 40px;
+            box-shadow: inset 0  0 20px 3px rgba(0, 0, 0, 0.342);
+            color: #ffffff;
+            font-weight: 300;
+            box-sizing: border-box;
+            padding: 6px;
+            text-align: justify;
+        }
+        .agent > #details::before{
+            content:"\3000\3000";
+        }
+        .agent > #SPECIAL-NOTE{
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: #ffb300;
+            color: #000000;
+            font-weight: 400;
+            padding: 0 0 0 10px;
+            clip-path: polygon(0px 10px,0 0,100% 0,100% 100%,15px 100%);
+        }
+        .agent > #img{
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            box-shadow:  0 0 10px 1px rgba(33, 33, 33, 0.808);
+        }
+    </style>
+</head>
+<body>
+    <div id="title-card">
+        <H1 id="title-1">欢迎回来</H1>
+        <H1 id="title-2">KTBL终端-ONLINE</H1>
+        <DIV style="background-image: linear-gradient(180rad,rgba(255, 255, 255, 0) 20%,rgb(0, 0, 0) 100%);height: 100%;width: 40%;z-index: 2;position: absolute;left: 0;font-size: 100PX;color: #ffffff00;-webkit-text-stroke: 0.4px rgba(255, 255, 255, 0.705);">Canterbury</DIV>
+        <div class="background-top">
+            <p class="move-i" style="animation-delay: 1s;top:10px;width: 30px;"></p>
+            <p class="move-i" style="animation-delay: 2s;top:90px;width: 20px;"></p>
+            <p class="move-i"style="animation-delay: 3s;top:100px;width: 20px;"></p>
+            <p class="move-i"style="animation-delay: 4s;top:40px;width: 30px;"></p>
+            <p class="move-i"style="animation-delay: 5s;top:70px;width: 20px;"></p>
+            <p class="move-i"style="animation-delay: 6s;top:40px;width: 10px;"></p>
+            <p class="move-i"style="animation-delay: 7s;top: 35px;0px;width: 20px;"></p>
+            <p class="move-i"style="animation-delay: 8s;top:66px;width: 20px;"></p>
+            <p class="move-i"style="animation-delay: 9s;top:22px;width: 40px;"></p>
+            <p class="move-i"style="animation-delay: 10s;top:90px;width: 20px;"></p>
+        </div>
+    </div>
+    <DIV style="position: relative;background-color: black;height: 32px;width: 100%;color: rgba(255, 255, 255, 0.671);overflow: hidden;">
+        <span style="color: rgba(255, 255, 255, 0.58);font-size: 30px;position: absolute;top: -2px;background-color: #000000;">BULLETIN BOARD</span><hr style="height: 6px;">
+        <span style="color: rgba(255, 255, 255, 0.199);font-size: 70px;position: absolute;top: -40px;font-weight: 500;">公告</span>
+    </DIV>
+    <div id="notice-broad" style="background-color: #101010;height: auto;width: 100%;padding: 3px;display: grid;grid-template-columns:repeat(2,2fr);gap: 8px;row-gap: 10px;">
+        <span class="notice-base"><span class="top_text_notice">2026&nbsp;//&nbsp;02&nbsp;//&nbsp;21&nbsp;&nbsp;&nbsp;00:47
+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;大家好啊，我是纸袋头，因为总水群将来的发展肯定是越来越多元化的，这里整理了一套坎特伯雷总水群规则与处罚明晰，即今日发送起生效，望大家严格遵守相关条例，做一个文明坎特伯雷人💀👍</span>
+        <span class="notice-base"><span class="top_text_notice">2026&nbsp;//&nbsp;02&nbsp;//&nbsp;12&nbsp;&nbsp;&nbsp;20:41</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;坎特伯雷管理员全面去神犬化👊
+            无正当理由擅自滥用群撤回和禁言者将被剥夺管理职位</span>
+        <span class="notice-base warning-notice"><span class="top_text_notice">2026&nbsp;//&nbsp;02&nbsp;//&nbsp;11&nbsp;&nbsp;&nbsp;21:19</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;喜欢见证和教唆的小朋友你们好啊！
+            因为今天群内发生了一件性质较为恶劣的事件于是有了以下群规↓
+            总之，我可以将这份规则浓缩为以下
+            “不论轻重，露头就打，众生平等，以敬效尤”；同时我也倡导群友们坚持“不参与，不讨论，不拱火”的底线！
+            希望各位群友以后擦亮眼睛，和谐相处</span>
+        <span class="notice-base"><span class="top_text_notice">2077&nbsp;//&nbsp;11&nbsp;//&nbsp;45&nbsp;&nbsp;&nbsp;14:00</span><span style="font-size: 30PX;">必看!</span><br>蛋糕店里卖蛋糕,面包店里卖面包,坎特伯雷卖牢登</span>
+        <span class="notice-base act-notice"><span class="top_text_notice">2024&nbsp;//&nbsp;07&nbsp;//&nbsp;01&nbsp;&nbsp;&nbsp;14:27</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;👀坎特伯雷岛打金服👀<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-开局就送顶级套装-<br>
+            ❤️输入SVIP-666就送修订套装❤️<br>
+            🧡输入SVIP-777就送叶子神器🧡<br>
+            💛输入SVIP-888就送七罪遗产💛<br>
+            点击www.kanboleite.kom既玩<br>(大嘘，这其实是假的)</span>
+        <span class="notice-base act-notice"><span class="top_text_notice">----&nbsp;//&nbsp;--&nbsp;//&nbsp;--&nbsp;&nbsp;&nbsp;--:--</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;孩子们官网复活了
+    </div>
+    </div>
+        <DIV style="position: relative;background-color: black;height: 32px;width: 100%;color: rgba(255, 255, 255, 0.671);overflow: hidden;">
+        <span style="color: rgba(255, 255, 255, 0.58);font-size: 30px;position: absolute;top: -2px;background-color: #000000;">Agents</span><hr style="height: 6px;">
+        <span style="color: rgba(255, 255, 255, 0.199);font-size: 70px;position: absolute;top: -40px;font-weight: 500;">干员</span>
+    </DIV>
+    <DIV id="agents-broad">
+        <div class="agent">
+            干员档案-#001
+            <span>牢登</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/ld.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">☆★★★★★</div>
+            <div id="details">英文名YURITA,有多个小号，是个0，嗯，兑。然后你可以花114514大洋买他的钩子</div>
+            <div id="bar">#最牢之人</div>
+        </div>
+        <div class="agent">
+            干员档案-#002
+            <span>杀虫剂</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/white.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">★★★★★★</div>
+            <div id="details">[UNKNOW]</div>
+            <div id="bar">#老资历</div>
+        </div>
+        <div class="agent">
+            干员档案-#003
+            <span>叶子</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/yezi.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">☆★★★★★</div>
+            <div id="details">[暂无]</div>
+            <div id="bar">#众望所归</div>
+        </div>
+        <div class="agent">
+            干员档案-#004
+            <span style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">SC</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/sc.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">☆★★★★★</div>
+            <div id="details">坎特伯雷最锋利的剑(曾经)，现已半退休开摆状态，但是随时开团秒跟</div>
+            <div id="bar">#最锋利的剑</div>
+        </div>
+        <div class="agent">
+            干员档案-#005
+            <span style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">PZN</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/pzn.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">☆★★★★★</div>
+            <div id="details">[暂无]</div>
+            <div id="bar">#神秘</div>
+        </div>
+        <div class="agent">
+            干员档案-#006
+            <span>灰猫</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/gray.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">☆★★★★★</div>
+            <div id="details">[暂无]</div>
+            <div id="bar">#灰色之人</div>
+        </div>
+        <div class="agent">
+            干员档案-#007
+            <span>幻黑</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/fakeblack.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">☆☆★★★★</div>
+            <div id="details">[暂无]</div>
+            <div id="bar">#第二人格</div>
+        </div>
+        <div class="agent">
+            档案-#008
+            <span>黑</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/UNKNOWN.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">★★★★★★★★★</div>
+            <div id="details">？？？？？？？？？？？？<br>？？？？？？？？？？？？？？<br>？？？？？？？？？？？？？？<br>？？？？？？？？？？？？？？<br>？？？？？？？？？？？？？？</div>
+            <div id="bar">#？？？？？</div>
+        </div>
+        <div class="agent">
+            干员档案-#009
+            <span>可乐</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/PDD.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">☆★★★★★</div>
+            <div id="details">“有请本群有史以来最抽象，最爱找乐子的网络小丑！可乐先生登场！！！”</div>
+            <div id="bar">#弄臣</div>
+        </div>
+        <div class="agent">
+            干员档案-#010
+            <span>青</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/Q.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">☆★★★★★</div>
+            <div id="details">“逃逸速度最快的帝王！青啊，让你认清没有管理的才能的会是……？！”</div>
+            <div id="bar">#青始皇</div>
+        </div>
+        <div class="agent">
+            干员档案-#011
+            <span>Cyclops</span>
+            <div id="img">
+                <img src="cantbury-Jokes-Website/jpgs/Cyclops.jpg" width="100%">
+            </div>
+            <div id="SPECIAL-NOTE">☆★★★★★</div>
+            <div id="details">“纯粹不当人类的奇异之物”</div>
+            <div id="bar">#动物朋友</div>
+        </div>
+    </DIV>
+</body>
+</html>
